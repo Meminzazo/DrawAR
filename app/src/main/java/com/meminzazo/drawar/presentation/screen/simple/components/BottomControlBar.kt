@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.FlipCameraAndroid
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -28,9 +30,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.meminzazo.drawar.presentation.theme.ControlBackground
+import com.meminzazo.drawar.presentation.screen.simple.components.ControlAction
 
 @Composable
 fun BottomControlBar(
@@ -39,6 +45,8 @@ fun BottomControlBar(
     isLocked: Boolean,
     isTorchOn: Boolean,
     isVisible: Boolean,
+    isFlippedH: Boolean,
+    isFlippedV: Boolean,
     onOpacityChange: (Float) -> Unit,
     onFlipHorizontal: () -> Unit,
     onFlipVertical: () -> Unit,
@@ -65,56 +73,52 @@ fun BottomControlBar(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 // Cargar imagen
-                IconButton(onClick = onPickImage) {
-                    Icon(
-                        imageVector = Icons.Default.FlipCameraAndroid,
-                        contentDescription = "Cargar imagen",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+
+                ControlAction(
+                    icon = Icons.Default.AddAPhoto,
+                    label = "Cargar imagen",
+                    onClick = onPickImage,
+                    enabled = !isLocked
+                )
 
                 // Voltear horizontal
-                IconButton(onClick = onFlipHorizontal, enabled = !isLocked) {
-                    Icon(
-                        imageVector = Icons.Default.SwapHoriz,
-                        contentDescription = "Voltear horizontal",
-                        tint = if (!isLocked) MaterialTheme.colorScheme.onSurface
-                        else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                ControlAction(
+                    icon = Icons.Default.SwapHoriz,
+                    label = "Voltear horizontal",
+                    onClick = onFlipHorizontal,
+                    tint = if (isFlippedH) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    enabled = !isLocked
+                )
 
                 // Voltear vertical
-                IconButton(onClick = onFlipVertical, enabled = !isLocked) {
-                    Icon(
-                        imageVector = Icons.Default.SwapVert,
-                        contentDescription = "Voltear vertical",
-                        tint = if (!isLocked) MaterialTheme.colorScheme.onSurface
-                        else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+
+                ControlAction(
+                    icon = Icons.Default.SwapVert,
+                    label = "Voltear vertical",
+                    onClick = onFlipVertical,
+                    tint = if (isFlippedV) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    enabled = !isLocked
+                )
 
                 // Bloquear overlay
-                IconButton(onClick = onToggleLock) {
-                    Icon(
-                        imageVector = if (isLocked) Icons.Default.Lock
-                        else Icons.Default.LockOpen,
-                        contentDescription = if (isLocked) "Desbloquear" else "Bloquear",
-                        tint = if (isLocked) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                ControlAction(
+                    icon = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
+                    label = if (isLocked) "Desbloquear" else "Bloquear",
+                    onClick = onToggleLock,
+                    tint = if (isLocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                )
 
                 // Reset
-                IconButton(onClick = onReset) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Restablecer",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                ControlAction(
+                    icon = Icons.Default.Refresh,
+                    label = "Restablecer imagen",
+                    onClick = onReset,
+                    enabled = !isLocked
+                )
+
             }
 
             Spacer(modifier = Modifier.height(8.dp))

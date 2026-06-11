@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material3.Icon
@@ -30,6 +31,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.meminzazo.drawar.presentation.screen.simple.components.BottomControlBar
 import com.meminzazo.drawar.presentation.screen.simple.components.CameraPreview
+import com.meminzazo.drawar.presentation.screen.simple.components.ControlAction
 import com.meminzazo.drawar.presentation.screen.simple.components.OverlayImage
 import com.meminzazo.drawar.presentation.screen.simple.components.SideControlPanel
 import com.meminzazo.drawar.presentation.util.rememberWindowSizeClass
@@ -107,6 +109,8 @@ fun SimpleScreen(
                     isTorchOn        = uiState.isTorchOn,
                     isVisible        = uiState.controlsVisible,
                     isExpanded       = isLargeTablet,
+                    isFlippedH       = uiState.flipHorizontal,
+                    isFlippedV       = uiState.flipVertical,
                     onOpacityChange  = viewModel::onOpacityChange,
                     onFlipHorizontal = viewModel::onFlipHorizontal,
                     onFlipVertical   = viewModel::onFlipVertical,
@@ -119,19 +123,21 @@ fun SimpleScreen(
             }
         } else {
             BottomControlBar(
-                opacity          = uiState.opacity,
-                scale            = uiState.scale,
-                isLocked         = uiState.isLocked,
-                isTorchOn        = uiState.isTorchOn,
-                isVisible        = uiState.controlsVisible,
-                onOpacityChange  = viewModel::onOpacityChange,
+                opacity = uiState.opacity,
+                scale = uiState.scale,
+                isLocked = uiState.isLocked,
+                isTorchOn = uiState.isTorchOn,
+                isVisible = uiState.controlsVisible,
+                isFlippedH = uiState.flipHorizontal,
+                isFlippedV = uiState.flipVertical,
+                onOpacityChange = viewModel::onOpacityChange,
                 onFlipHorizontal = viewModel::onFlipHorizontal,
-                onFlipVertical   = viewModel::onFlipVertical,
-                onToggleLock     = viewModel::onToggleLock,
-                onToggleTorch    = viewModel::onToggleTorch,
-                onReset          = viewModel::onReset,
-                onPickImage      = { imagePicker.launch("image/*") },
-                modifier         = Modifier.align(Alignment.BottomCenter)
+                onFlipVertical = viewModel::onFlipVertical,
+                onToggleLock = viewModel::onToggleLock,
+                onToggleTorch = viewModel::onToggleTorch,
+                onReset = viewModel::onReset,
+                onPickImage = { imagePicker.launch("image/*") },
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
 
@@ -171,22 +177,19 @@ private fun TopBar(
             modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            IconButton(onClick = onToggleTorch) {
-                Icon(
-                    imageVector = if (isTorchOn) Icons.Default.FlashlightOn
-                    else Icons.Default.FlashlightOff,
-                    contentDescription = if (isTorchOn) "Apagar linterna" else "Encender linterna",
-                    tint = if (isTorchOn) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurface
-                )
-            }
+
+            ControlAction(
+                icon = Icons.Default.ArrowBackIosNew,
+                label = "Volver",
+                onClick = onNavigateBack
+            )
+
+            ControlAction(
+                icon = if (isTorchOn) Icons.Default.FlashlightOn else Icons.Default.FlashlightOff,
+                label = if (isTorchOn) "Apagar linterna" else "Encender linterna",
+                tint = if (isTorchOn) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                onClick = onToggleTorch
+            )
         }
     }
 }

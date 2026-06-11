@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.FlipCameraAndroid
 import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
@@ -39,6 +40,8 @@ fun SideControlPanel(
     isLocked: Boolean,
     isTorchOn: Boolean,
     isVisible: Boolean,
+    isFlippedH: Boolean,
+    isFlippedV: Boolean,
     isExpanded: Boolean,         // tablet grande vs tablet pequeña
     onOpacityChange: (Float) -> Unit,
     onFlipHorizontal: () -> Unit,
@@ -69,58 +72,42 @@ fun SideControlPanel(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            IconButton(onClick = onPickImage) {
-                Icon(
-                    imageVector = Icons.Default.FlipCameraAndroid,
-                    contentDescription = "Cargar imagen",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+            ControlAction(
+                icon = Icons.Default.AddAPhoto,
+                label = "Cargar imagen",
+                onClick = onPickImage,
+                enabled = !isLocked
+            )
 
-            IconButton(onClick = onFlipHorizontal, enabled = !isLocked) {
-                Icon(
-                    imageVector = Icons.Default.SwapHoriz,
-                    contentDescription = "Voltear horizontal",
-                    tint = if (!isLocked) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            ControlAction(
+                icon = Icons.Default.SwapHoriz,
+                label = "Voltear horizontal",
+                onClick = onFlipHorizontal,
+                tint = if (isFlippedH) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                enabled = !isLocked
+            )
 
-            IconButton(onClick = onFlipVertical, enabled = !isLocked) {
-                Icon(
-                    imageVector = Icons.Default.SwapVert,
-                    contentDescription = "Voltear vertical",
-                    tint = if (!isLocked) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            ControlAction(
+                icon = Icons.Default.SwapVert,
+                label = "Voltear vertical",
+                onClick = onFlipVertical,
+                tint = if (isFlippedV) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                enabled = !isLocked
+            )
 
-            IconButton(onClick = onToggleLock) {
-                Icon(
-                    imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
-                    contentDescription = if (isLocked) "Desbloquear" else "Bloquear",
-                    tint = if (isLocked) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurface
-                )
-            }
+            ControlAction(
+                icon = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
+                label = if (isLocked) "Desbloquear" else "Bloquear",
+                onClick = onToggleLock,
+                tint = if (isLocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+            )
 
-            IconButton(onClick = onToggleTorch) {
-                Icon(
-                    imageVector = if (isTorchOn) Icons.Default.FlashlightOn
-                    else Icons.Default.FlashlightOff,
-                    contentDescription = if (isTorchOn) "Apagar linterna" else "Encender linterna",
-                    tint = if (isTorchOn) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            IconButton(onClick = onReset) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Restablecer",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            ControlAction(
+                icon = Icons.Default.Refresh,
+                label = "Restablecer",
+                onClick = onReset,
+                enabled = !isLocked
+            )
 
             // En panel expandido mostramos slider y escala con label
             if (isExpanded) {
