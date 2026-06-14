@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun HomeScreen(
-    onSimpleModeClick: () -> Unit
+    onSimpleModeClick: () -> Unit,
+    onProModeClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -72,15 +73,15 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedButton(
-                onClick = { /* Modo Pro — próximamente */ },
+                onClick = onProModeClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = false
+                enabled = true
             ) {
                 Text(
-                    text = "Modo Pro  (próximamente)",
+                    text = "Modo Pro (Realidad Aumentada)",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
                 )

@@ -73,6 +73,10 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
+    // ARCore
+    implementation(libs.arcore.core)
+    implementation(libs.sceneview.arcore)
+
     // DataStore
     implementation(libs.androidx.datastore)
 
