@@ -36,6 +36,8 @@ import com.meminzazo.drawar.presentation.screen.simple.components.OverlayImage
 import com.meminzazo.drawar.presentation.screen.simple.components.SideControlPanel
 import com.meminzazo.drawar.presentation.util.rememberWindowSizeClass
 import com.meminzazo.drawar.presentation.util.WindowSizeClass
+import android.content.res.Configuration
+import androidx.compose.ui.platform.LocalConfiguration
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -44,6 +46,8 @@ fun SimpleScreen(
     viewModel: SimpleViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     // Permiso de cámara
     val cameraPermission = rememberPermissionState(Manifest.permission.CAMERA)
@@ -62,6 +66,10 @@ fun SimpleScreen(
     val windowSize = rememberWindowSizeClass()
     val isLandscapeOrTablet = windowSize != WindowSizeClass.CompactPortrait
     val isLargeTablet = windowSize == WindowSizeClass.Expanded
+
+    LaunchedEffect(isLandscape) {
+        viewModel.onOrientationChanged()
+    }
 
     Box(
         modifier = Modifier
@@ -83,13 +91,15 @@ fun SimpleScreen(
             OverlayImage(
                 imageUri       = uri,
                 opacity        = uiState.opacity,
-                offsetXPercent = uiState.offsetXPercent,
-                offsetYPercent = uiState.offsetYPercent,
+                offsetXPx         = uiState.offsetXPx,  // ← nuevo nombre
+                offsetYPx         = uiState.offsetYPx,  // ← nuevo nombre
                 scale          = uiState.scale,
                 rotation       = uiState.rotation,
                 flipHorizontal = uiState.flipHorizontal,
                 flipVertical   = uiState.flipVertical,
                 isLocked       = uiState.isLocked,
+                edgeBitmap        = uiState.edgeBitmap,       // ← faltaba
+                isEdgeModeActive  = uiState.isEdgeModeActive, // ← faltaba
                 onOffsetChange     = viewModel::onOffsetChange,
                 onScaleChange      = viewModel::onScaleChange,
                 onRotationChange   = viewModel::onRotationChange,

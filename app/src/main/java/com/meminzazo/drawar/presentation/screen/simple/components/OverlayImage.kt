@@ -32,15 +32,15 @@ import kotlin.math.roundToInt
 fun OverlayImage(
     imageUri: Uri,
     opacity: Float,
-    offsetXPercent: Float,
-    offsetYPercent: Float,
+    offsetXPx: Float,
+    offsetYPx: Float,
     scale: Float,
     rotation: Float,
     flipHorizontal: Boolean,
     flipVertical: Boolean,
     isLocked: Boolean,
-    edgeBitmap: Bitmap? = null,        // ← nuevo
-    isEdgeModeActive: Boolean = false, // ← nuevo
+    edgeBitmap: Bitmap? = null,
+    isEdgeModeActive: Boolean = false,
     onOffsetChange: (Float, Float) -> Unit,
     onScaleChange: (Float) -> Unit,
     onRotationChange: (Float) -> Unit,
@@ -49,75 +49,55 @@ fun OverlayImage(
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-    // Siempre apuntan al valor más reciente — el gesto nunca captura un valor stale
-    val currentOffsetX by rememberUpdatedState(offsetXPercent)
-    val currentOffsetY by rememberUpdatedState(offsetYPercent)
-    val currentScale   by rememberUpdatedState(scale)
+    val currentOffsetX  by rememberUpdatedState(offsetXPx)
+    val currentOffsetY  by rememberUpdatedState(offsetYPx)
+    val currentScale    by rememberUpdatedState(scale)
     val currentRotation by rememberUpdatedState(rotation)
 
-    // El modelo que Coil debe mostrar — bitmap procesado o URI original
-    val imageModel = if (isEdgeModeActive && edgeBitmap != null) {
-        edgeBitmap
-    } else {
-        imageUri
-    }
+    val imageModel = if (isEdgeModeActive && edgeBitmap != null) edgeBitmap else imageUri
+    val density = LocalDensity.current
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .onSizeChanged { containerSize = it }
+            .onSizeChanged { containerSize = it },
+        contentAlignment = Alignment.Center
     ) {
         if (containerSize != IntSize.Zero) {
-            val offsetX = (currentOffsetX * containerSize.width).roundToInt()
-            val offsetY = (currentOffsetY * containerSize.height).roundToInt()
-
             AsyncImage(
                 model = imageModel,
                 contentDescription = "Imagen de referencia para calcar",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    // 1. Posicionamos la imagen en el espacio global
-                    .offset { IntOffset(offsetX, offsetY) }
-                    // 2. Aplicamos rotación y flip en la capa de gráficos (más eficiente)
-                    .graphicsLayer {
-                        rotationZ = currentRotation
-                        scaleX = if (flipHorizontal) -1f else 1f
-                        scaleY = if (flipVertical) -1f else 1f
-                        // LA CLAVE: Desactivamos el recorte para que al hacer zoom 
-                        // no se corte la imagen en los bordes de la pantalla.
-                        clip = false
-                    }
-                    .alpha(opacity)
-                    // 3. El truco maestro: wrapContentSize(unbounded = true) permite que el componente
-                    // sea más grande que el padre (la pantalla) sin ser recortado.
-                    .wrapContentSize(align = Alignment.Center, unbounded = true)
-                    // 4. Aplicamos el tamaño escalado directamente al layout del componente.
-                    // Al cambiar el tamaño del layout en lugar de solo la escala visual,
-                    // evitamos que el motor de renderizado recorte la imagen.
-                    .size(
-                        (containerSize.width.dp / LocalDensity.current.density) * currentScale,
-                        (containerSize.height.dp / LocalDensity.current.density) * currentScale
-                    )
-                    // 5. Capturamos los gestos sobre el componente ya escalado.
+                    // 1. Capturamos gestos primero en el espacio global (solución al movimiento al rotar)
                     .then(
                         if (!isLocked) {
                             Modifier.pointerInput(Unit) {
                                 detectTransformGestures { _, pan, zoom, rotate ->
                                     onUserInteraction()
-
-                                    if (containerSize.width > 0 && containerSize.height > 0) {
-                                        // El 'pan' sigue siendo relativo a la pantalla física.
-                                        val newX = currentOffsetX + pan.x / containerSize.width
-                                        val newY = currentOffsetY + pan.y / containerSize.height
-                                        onOffsetChange(newX, newY)
-                                    }
-
+                                    onOffsetChange(currentOffsetX + pan.x, currentOffsetY + pan.y)
                                     onScaleChange(currentScale * zoom)
                                     onRotationChange(currentRotation + rotate)
                                 }
                             }
                         } else Modifier
                     )
+                    // 2. Posicionamiento
+                    .offset { IntOffset(currentOffsetX.roundToInt(), currentOffsetY.roundToInt()) }
+                    // 3. Tamaño base y permitir desbordamiento (solución al recorte)
+                    .wrapContentSize(align = Alignment.Center, unbounded = true)
+                    .size(
+                        width  = with(density) { containerSize.width.toDp() },
+                        height = with(density) { containerSize.height.toDp() }
+                    )
+                    // 4. Transformaciones visuales (smooth zoom)
+                    .graphicsLayer {
+                        scaleX = currentScale * if (flipHorizontal) -1f else 1f
+                        scaleY = currentScale * if (flipVertical)   -1f else 1f
+                        rotationZ = currentRotation
+                        clip = false // Evita el recorte
+                    }
+                    .alpha(opacity)
             )
         }
     }

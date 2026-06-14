@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class SimpleViewModel @Inject constructor(
     private val getOverlayState: GetOverlayStateUseCase,
@@ -49,6 +50,7 @@ class SimpleViewModel @Inject constructor(
     // Carga inicial desde DataStore
     // ─────────────────────────────────────────
 
+    // Cambiar offsetXPercent/offsetYPercent por offsetXPx/offsetYPx en loadOverlayState:
     private fun loadOverlayState() {
         viewModelScope.launch {
             getOverlayState()
@@ -60,8 +62,8 @@ class SimpleViewModel @Inject constructor(
                         current.copy(
                             imageUri       = domainState.imageUri?.let { Uri.parse(it) },
                             opacity        = domainState.opacity,
-                            offsetXPercent = domainState.offsetXPercent,
-                            offsetYPercent = domainState.offsetYPercent,
+                            offsetXPx      = domainState.offsetXPercent, // reutilizamos el campo
+                            offsetYPx      = domainState.offsetYPercent, // reutilizamos el campo
                             scale          = domainState.scale,
                             rotation       = domainState.rotation,
                             flipHorizontal = domainState.flipHorizontal,
@@ -93,9 +95,10 @@ class SimpleViewModel @Inject constructor(
         persistState()
     }
 
-    fun onOffsetChange(xPercent: Float, yPercent: Float) {
+    // onOffsetChange ahora recibe píxeles directamente
+    fun onOffsetChange(xPx: Float, yPx: Float) {
         if (_uiState.value.isLocked) return
-        _uiState.update { it.copy(offsetXPercent = xPercent, offsetYPercent = yPercent) }
+        _uiState.update { it.copy(offsetXPx = xPx, offsetYPx = yPx) }
         persistState()
     }
 
@@ -137,13 +140,13 @@ class SimpleViewModel @Inject constructor(
         persistState()
     }
 
+    // onReset — actualizar nombres de campo
     fun onReset() {
         viewModelScope.launch {
             resetOverlayState()
-            // isTorchOn no se persiste en reset — apagamos también en UI
             _uiState.update { current ->
                 SimpleUiState(
-                    imageUri  = current.imageUri,  // conservamos la imagen
+                    imageUri  = current.imageUri,
                     isLoading = false
                 )
             }
@@ -178,6 +181,7 @@ class SimpleViewModel @Inject constructor(
     // Persistencia
     // ─────────────────────────────────────────
 
+    // persistState — guardar píxeles en el campo de porcentaje del dominio
     private fun persistState() {
         val current = _uiState.value
         viewModelScope.launch {
@@ -185,8 +189,8 @@ class SimpleViewModel @Inject constructor(
                 OverlayState(
                     imageUri       = current.imageUri?.toString(),
                     opacity        = current.opacity,
-                    offsetXPercent = current.offsetXPercent,
-                    offsetYPercent = current.offsetYPercent,
+                    offsetXPercent = current.offsetXPx,  // reutilizamos campo existente
+                    offsetYPercent = current.offsetYPx,
                     scale          = current.scale,
                     rotation       = current.rotation,
                     flipHorizontal = current.flipHorizontal,
@@ -247,6 +251,12 @@ class SimpleViewModel @Inject constructor(
                 isEdgeModeActive  = false
             )
         }
+        persistState()
+    }
+
+    fun onOrientationChanged() {
+        // Eliminamos el reset de posición para que se mantenga el ajuste relativo (porcentual)
+        // que el usuario ya realizó en la otra orientación.
         persistState()
     }
 }

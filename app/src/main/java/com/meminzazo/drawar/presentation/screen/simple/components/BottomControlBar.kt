@@ -5,6 +5,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,9 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.Addchart
 import androidx.compose.material.icons.filled.FlipCameraAndroid
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -39,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.meminzazo.drawar.presentation.theme.ControlBackground
 import com.meminzazo.drawar.presentation.screen.simple.components.ControlAction
 import androidx.compose.material.icons.filled.AutoFixHigh
+import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material3.CircularProgressIndicator
 
 @Composable
@@ -78,8 +82,9 @@ fun BottomControlBar(
         ) {
             // Fila superior — iconos de acción
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.Top
             ) {
                 // Cargar imagen
@@ -143,8 +148,8 @@ fun BottomControlBar(
                     }
                 } else {
                     ControlAction(
-                        icon = Icons.Default.AutoFixHigh,
-                        label = if (isEdgeModeActive) "Original" else "Bordes",
+                        icon = if (isEdgeModeActive) Icons.Default.ImageSearch else Icons.Default.AutoFixHigh,  // ← condicional
+                        label = if (isEdgeModeActive) "Original" else "Solo bordes",
                         onClick = onToggleEdgeDetection,
                         enabled = hasImage,
                         tint = if (isEdgeModeActive) MaterialTheme.colorScheme.primary

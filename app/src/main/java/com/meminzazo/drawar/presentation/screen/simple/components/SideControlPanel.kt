@@ -134,7 +134,7 @@ fun SideControlPanel(
             } else {
                 ControlAction(
                     icon = Icons.Default.AutoFixHigh,
-                    label = if (isEdgeModeActive) "Original" else "Bordes",
+                    label = if (isEdgeModeActive) "Original" else "Solo bordes",
                     onClick = onToggleEdgeDetection,
                     enabled = hasImage,
                     tint = if (isEdgeModeActive) MaterialTheme.colorScheme.primary
