@@ -1,5 +1,6 @@
 package com.meminzazo.drawar.presentation.screen.simple
 
+import android.graphics.Bitmap
 import android.net.Uri
 
 data class SimpleUiState(
@@ -20,5 +21,10 @@ data class SimpleUiState(
     val isTorchOn: Boolean = false,
     val controlsVisible: Boolean = true,
     val isLoading: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
+
+    //Deteccion de bordes
+    val edgeBitmap: Bitmap? = null,
+    val isEdgeModeActive: Boolean = false,
+    val isProcessingEdges: Boolean = false
 )

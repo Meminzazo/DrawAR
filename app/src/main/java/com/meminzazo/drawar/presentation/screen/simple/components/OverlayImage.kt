@@ -1,5 +1,6 @@
 package com.meminzazo.drawar.presentation.screen.simple.components
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,8 @@ fun OverlayImage(
     flipHorizontal: Boolean,
     flipVertical: Boolean,
     isLocked: Boolean,
+    edgeBitmap: Bitmap? = null,        // ← nuevo
+    isEdgeModeActive: Boolean = false, // ← nuevo
     onOffsetChange: (Float, Float) -> Unit,
     onScaleChange: (Float) -> Unit,
     onRotationChange: (Float) -> Unit,
@@ -52,6 +55,13 @@ fun OverlayImage(
     val currentScale   by rememberUpdatedState(scale)
     val currentRotation by rememberUpdatedState(rotation)
 
+    // El modelo que Coil debe mostrar — bitmap procesado o URI original
+    val imageModel = if (isEdgeModeActive && edgeBitmap != null) {
+        edgeBitmap
+    } else {
+        imageUri
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -62,7 +72,7 @@ fun OverlayImage(
             val offsetY = (currentOffsetY * containerSize.height).roundToInt()
 
             AsyncImage(
-                model = imageUri,
+                model = imageModel,
                 contentDescription = "Imagen de referencia para calcar",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier

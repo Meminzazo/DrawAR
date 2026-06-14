@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.meminzazo.drawar.domain.model.OverlayState
+import com.meminzazo.drawar.domain.usecase.DetectEdgesUseCase
 import com.meminzazo.drawar.domain.usecase.GetOverlayStateUseCase
 import com.meminzazo.drawar.domain.usecase.ResetOverlayStateUseCase
 import com.meminzazo.drawar.domain.usecase.SaveOverlayStateUseCase
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class SimpleViewModel @Inject constructor(
     private val getOverlayState: GetOverlayStateUseCase,
     private val saveOverlayState: SaveOverlayStateUseCase,
-    private val resetOverlayState: ResetOverlayStateUseCase
+    private val resetOverlayState: ResetOverlayStateUseCase,
+    private val detectEdges: DetectEdgesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SimpleUiState())
@@ -77,10 +79,10 @@ class SimpleViewModel @Inject constructor(
     // Imagen
     // ─────────────────────────────────────────
 
-    fun onImageSelected(uri: Uri) {
-        _uiState.update { it.copy(imageUri = uri) }
-        persistState()
-    }
+//    fun onImageSelected(uri: Uri) {
+//        _uiState.update { it.copy(imageUri = uri) }
+//        persistState()
+//    }
 
     // ─────────────────────────────────────────
     // Parámetros de overlay
@@ -194,5 +196,57 @@ class SimpleViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    // ─────────────────────────────────────────
+    // Detección de bordes
+    // ─────────────────────────────────────────
+
+    fun onToggleEdgeDetection() {
+        val current = _uiState.value
+
+        // Si ya hay bitmap procesado, solo alternar visibilidad
+        if (current.edgeBitmap != null) {
+            _uiState.update { it.copy(isEdgeModeActive = !it.isEdgeModeActive) }
+            return
+        }
+
+        // Primera vez — necesitamos procesar
+        val uri = current.imageUri ?: return
+
+        _uiState.update { it.copy(isProcessingEdges = true) }
+
+        viewModelScope.launch {
+            runCatching { detectEdges(uri) }
+                .onSuccess { bitmap ->
+                    _uiState.update {
+                        it.copy(
+                            edgeBitmap        = bitmap,
+                            isEdgeModeActive  = true,
+                            isProcessingEdges = false
+                        )
+                    }
+                }
+                .onFailure { e ->
+                    _uiState.update {
+                        it.copy(
+                            isProcessingEdges = false,
+                            error             = e.message
+                        )
+                    }
+                }
+        }
+    }
+
+    // Cuando se carga una imagen nueva, invalidar el bitmap procesado
+    fun onImageSelected(uri: Uri) {
+        _uiState.update {
+            it.copy(
+                imageUri          = uri,
+                edgeBitmap        = null,    // ← invalidar cache
+                isEdgeModeActive  = false
+            )
+        }
+        persistState()
     }
 }

@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.FlipCameraAndroid
 import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
@@ -22,6 +24,7 @@ import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,8 +51,12 @@ fun SideControlPanel(
     onFlipVertical: () -> Unit,
     onToggleLock: () -> Unit,
     onToggleTorch: () -> Unit,
+    isEdgeModeActive: Boolean,         // ← nuevo
+    isProcessingEdges: Boolean,        // ← nuevo
+    hasImage: Boolean,                 // ← nuevo
     onReset: () -> Unit,
     onPickImage: () -> Unit,
+    onToggleEdgeDetection: () -> Unit, // ← nuevo
     modifier: Modifier = Modifier
 ) {
     val panelWidth = if (isExpanded) 200.dp else 64.dp
@@ -108,6 +115,32 @@ fun SideControlPanel(
                 onClick = onReset,
                 enabled = !isLocked
             )
+            if (isProcessingEdges) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Procesando",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                ControlAction(
+                    icon = Icons.Default.AutoFixHigh,
+                    label = if (isEdgeModeActive) "Original" else "Bordes",
+                    onClick = onToggleEdgeDetection,
+                    enabled = hasImage,
+                    tint = if (isEdgeModeActive) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurface
+                )
+            }
 
             // En panel expandido mostramos slider y escala con label
             if (isExpanded) {

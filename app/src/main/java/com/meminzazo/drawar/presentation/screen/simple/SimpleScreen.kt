@@ -117,6 +117,10 @@ fun SimpleScreen(
                     onToggleLock     = viewModel::onToggleLock,
                     onToggleTorch    = viewModel::onToggleTorch,
                     onReset          = viewModel::onReset,
+                    isEdgeModeActive      = uiState.isEdgeModeActive,
+                    isProcessingEdges     = uiState.isProcessingEdges,
+                    hasImage              = uiState.imageUri != null,
+                    onToggleEdgeDetection = viewModel::onToggleEdgeDetection,
                     onPickImage      = { imagePicker.launch("image/*") },
                     modifier         = Modifier.align(Alignment.CenterVertically)
                 )
@@ -135,6 +139,10 @@ fun SimpleScreen(
                 onFlipVertical = viewModel::onFlipVertical,
                 onToggleLock = viewModel::onToggleLock,
                 onToggleTorch = viewModel::onToggleTorch,
+                isEdgeModeActive      = uiState.isEdgeModeActive,
+                isProcessingEdges     = uiState.isProcessingEdges,
+                hasImage              = uiState.imageUri != null,
+                onToggleEdgeDetection = viewModel::onToggleEdgeDetection,
                 onReset = viewModel::onReset,
                 onPickImage = { imagePicker.launch("image/*") },
                 modifier = Modifier.align(Alignment.BottomCenter)

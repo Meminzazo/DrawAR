@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
@@ -37,6 +38,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.meminzazo.drawar.presentation.theme.ControlBackground
 import com.meminzazo.drawar.presentation.screen.simple.components.ControlAction
+import androidx.compose.material.icons.filled.AutoFixHigh
+import androidx.compose.material3.CircularProgressIndicator
 
 @Composable
 fun BottomControlBar(
@@ -52,6 +55,10 @@ fun BottomControlBar(
     onFlipVertical: () -> Unit,
     onToggleLock: () -> Unit,
     onToggleTorch: () -> Unit,
+    isEdgeModeActive: Boolean,
+    isProcessingEdges: Boolean,
+    onToggleEdgeDetection: () -> Unit,
+    hasImage: Boolean,
     onReset: () -> Unit,
     onPickImage: () -> Unit,
     modifier: Modifier = Modifier
@@ -118,6 +125,32 @@ fun BottomControlBar(
                     onClick = onReset,
                     enabled = !isLocked
                 )
+                if (isProcessingEdges) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Procesando",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    ControlAction(
+                        icon = Icons.Default.AutoFixHigh,
+                        label = if (isEdgeModeActive) "Original" else "Bordes",
+                        onClick = onToggleEdgeDetection,
+                        enabled = hasImage,
+                        tint = if (isEdgeModeActive) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurface
+                    )
+                }
 
             }
 
