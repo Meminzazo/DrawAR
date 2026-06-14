@@ -73,10 +73,6 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
-    // ARCore
-    implementation(libs.arcore.core)
-    implementation(libs.sceneview.arcore)
-
     // DataStore
     implementation(libs.androidx.datastore)
 
@@ -90,4 +86,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     implementation(libs.accompanist.permissions)
+
+    // OpenCV
+    implementation(libs.opencv)
 }

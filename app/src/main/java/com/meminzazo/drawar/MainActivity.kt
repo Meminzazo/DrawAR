@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.meminzazo.drawar.presentation.navigation.DrawARNavGraph
 import com.meminzazo.drawar.presentation.theme.DrawARTheme
 import dagger.hilt.android.AndroidEntryPoint
+import org.opencv.android.OpenCVLoader
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -18,6 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         hideSystemBars()
+        //OpeCVLoader.initLocal()
         setContent {
             DrawARTheme {
                 DrawARNavGraph()

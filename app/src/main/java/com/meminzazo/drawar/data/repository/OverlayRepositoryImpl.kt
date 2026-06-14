@@ -10,9 +10,15 @@ class OverlayRepositoryImpl @Inject constructor(
     private val dataSource: OverlayPreferencesDataSource
 ) : OverlayRepository {
 
-    override fun getOverlayState(): Flow<OverlayState> = dataSource.overlayState
+    override fun getOverlayState(): Flow<OverlayState> {
+        return dataSource.overlayState
+    }
 
-    override suspend fun saveOverlayState(state: OverlayState) = dataSource.save(state)
+    override suspend fun saveOverlayState(state: OverlayState) {
+        dataSource.save(state)
+    }
 
-    override suspend fun resetOverlayState() = dataSource.reset()
+    override suspend fun resetOverlayState() {
+        dataSource.reset()
+    }
 }
